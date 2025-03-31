@@ -1,17 +1,13 @@
+// Load Stockfish from CDN
 importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');
 
-// Detect if Stockfish is a function (i.e., Stockfish() returns the engine)
-// OR just a preloaded Worker object
-const engine = typeof Stockfish === 'function' ? Stockfish() : (typeof stockfish !== 'undefined' ? stockfish : null);
-
-if (!engine) {
-  throw new Error("Stockfish engine could not be initialized.");
-}
+// Stockfish on CDN is a ready-to-use Worker-compatible object
+// No need to call a function like Stockfish()
 
 onmessage = function (e) {
-  engine.postMessage(e.data);
+  stockfish.postMessage(e.data);
 };
 
-engine.onmessage = function (e) {
+stockfish.onmessage = function (e) {
   postMessage(e.data);
 };
