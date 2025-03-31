@@ -2,26 +2,29 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 
-function App() {
+export default function App() {
   const [game, setGame] = useState(new Chess());
-  const stockfishWorker = useRef(null);
+  const stockfishRef = useRef(null);
 
   useEffect(() => {
-    stockfishWorker.current = new Worker('/stockfishWorker.js');
+    // Create Web Worker directly from CDN
+    stockfishRef.current = new Worker(
+      'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js'
+    );
 
-    stockfishWorker.current.onmessage = (event) => {
+    stockfishRef.current.onmessage = (event) => {
       const message = event.data;
-      if (message.startsWith('bestmove')) {
+      console.log('[Stockfish]', message);
+      if (typeof message === 'string' && message.startsWith('bestmove')) {
         const move = message.split(' ')[1];
-        alert(`Best Move: ${move}`);
+        alert(`♟️ Best move: ${move}`);
       }
     };
 
-    stockfishWorker.current.postMessage('uci');
+    // Initialize the engine
+    stockfishRef.current.postMessage('uci');
 
-    return () => {
-      stockfishWorker.current.terminate();
-    };
+    return () => stockfishRef.current.terminate();
   }, []);
 
   const onDrop = (sourceSquare, targetSquare) => {
@@ -37,8 +40,8 @@ function App() {
     if (result) {
       setGame(gameCopy);
       const fen = gameCopy.fen();
-      stockfishWorker.current.postMessage(`position fen ${fen}`);
-      stockfishWorker.current.postMessage('go depth 30');
+      stockfishRef.current.postMessage(`position fen ${fen}`);
+      stockfishRef.current.postMessage('go depth 30');
       return true;
     }
 
@@ -46,11 +49,9 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <h1>React + Stockfish</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 50 }}>
+      <h2>♜ React + Stockfish (CDN Worker)</h2>
       <Chessboard position={game.fen()} onPieceDrop={onDrop} />
     </div>
   );
 }
-
-export default App;
