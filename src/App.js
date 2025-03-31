@@ -2,35 +2,38 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 
-export default function App() {
+const App = () => {
   const [game, setGame] = useState(new Chess());
   const stockfishRef = useRef(null);
 
   useEffect(() => {
-    // Create Web Worker directly from CDN
-    stockfishRef.current = new Worker(
-      'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js'
-    );
-
+    stockfishRef.current = new Worker('/stockfishWorker.js');
+  
     stockfishRef.current.onmessage = (event) => {
       const message = event.data;
       console.log('[Stockfish]', message);
       if (typeof message === 'string' && message.startsWith('bestmove')) {
-        const move = message.split(' ')[1];
-        alert(`♟️ Best move: ${move}`);
+        alert(`♟️ Best move: ${message.split(' ')[1]}`);
       }
     };
-
-    // Initialize the engine
+  
     stockfishRef.current.postMessage('uci');
-
-    return () => stockfishRef.current.terminate();
+    // 🚀 Speed booster settings
+stockfishRef.current.postMessage('setoption name Threads value 8');    // Use 4 CPU threads
+stockfishRef.current.postMessage('setoption name Hash value 1024');     // Use 256MB RAM
+stockfishRef.current.postMessage('setoption name MultiPV value 1');
+stockfishRef.current.postMessage('setoption name Ponder value false');
+// stockfishRef.current.postMessage('setoption name UCI_LimitStrength value false'); // Max strength
+// stockfishRef.current.postMessage('setoption name UCI_Elo value 2850'); // Unleash full rating
+    return () => {
+      stockfishRef.current.terminate();
+    };
   }, []);
 
-  const onDrop = (sourceSquare, targetSquare) => {
+  const onDrop = (source, target) => {
     const move = {
-      from: sourceSquare,
-      to: targetSquare,
+      from: source,
+      to: target,
       promotion: 'q',
     };
 
@@ -40,8 +43,9 @@ export default function App() {
     if (result) {
       setGame(gameCopy);
       const fen = gameCopy.fen();
+      stockfishRef.current.postMessage('isready');
       stockfishRef.current.postMessage(`position fen ${fen}`);
-      stockfishRef.current.postMessage('go depth 30');
+      stockfishRef.current.postMessage('go movetime 5000');
       return true;
     }
 
@@ -49,9 +53,11 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 50 }}>
-      <h2>♜ React + Stockfish (CDN Worker)</h2>
+    <div>
+      <h1>React Chess with Stockfish</h1>
       <Chessboard position={game.fen()} onPieceDrop={onDrop} />
     </div>
   );
-}
+};
+
+export default App;
