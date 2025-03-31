@@ -1,4 +1,4 @@
-importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.wasm.js');
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.wasm.min.js');
 
 // Detect if Stockfish is a function (i.e., Stockfish() returns the engine)
 // OR just a preloaded Worker object
