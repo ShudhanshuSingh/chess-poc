@@ -1,4 +1,4 @@
-importScripts('stockfish-nnue-16.js');
+importScripts('stockfish.js');
 
 // Detect if Stockfish is a function (i.e., Stockfish() returns the engine)
 // OR just a preloaded Worker object
