@@ -1,4 +1,4 @@
-importScripts('stockfish-nnue-16.js');
+importScripts('stockfish.js');
 
 self.onmessage = function (e) {
   stockfish.postMessage(e.data);
