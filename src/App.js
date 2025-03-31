@@ -65,9 +65,13 @@ stockfishRef.current.postMessage('setoption name Ponder value false');
   };
 
   return (
-    <div>
-      <h1>React Chess with Stockfish</h1>
+    <div style={{display:'flex', justifyContent:'center', flexDirection: 'column',alignItems:'center', width:'100%' }}>
+      <h1>Guess Move with Stockfish</h1>
+      <div>
+
       <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={500}/>
+      </div>
+      <p>Under POC by Rachna Sanghvi</p>
     </div>
   );
 };
