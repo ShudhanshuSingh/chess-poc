@@ -17,6 +17,8 @@ function App() {
       }
     };
 
+    stockfishWorker.current.postMessage('uci');
+
     return () => {
       stockfishWorker.current.terminate();
     };
